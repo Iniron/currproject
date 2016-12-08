@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane fx:controller="com.javafx.tetris.controller.View_Controller"
+		xmlns:fx="http://javafx.com/fxml/1" stylesheets="@Layout_Style.css">
+	<!-- TODO Add Nodes -->
+	<!-- <GridPane fx:id="blockPanel" vgap="1" hgap="1"/> -->
+	<BorderPane>
+		<center>
+			<GridPane fx:id="gamePanel" vgap="1" hgap="1"/>	
+		</center>
+	</BorderPane>
+
+</Pane>
+
+
