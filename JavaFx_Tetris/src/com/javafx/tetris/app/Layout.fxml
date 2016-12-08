@@ -12,10 +12,11 @@
 	<!-- <GridPane fx:id="blockPanel" vgap="1" hgap="1"/> -->
 	<BorderPane>
 		<center>
-			<GridPane fx:id="gamePanel" vgap="1" hgap="1"/>	
+			<GridPane fx:id="gamePanel" vgap="1" hgap="1"/>
 		</center>
 	</BorderPane>
-
+	<GridPane fx:id="blockPanel" vgap="1" hgap="1"/>
+	
 </Pane>
 
 

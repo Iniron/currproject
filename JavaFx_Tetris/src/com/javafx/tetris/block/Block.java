@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 
 public class Block {
 	
-	private final int PointCnt = 4;				//포인트의 개수
+	public final int PointCnt = 4;				//포인트의 개수
 	
 	public B_Point offset;				//블럭의 현재 위치
 	public ArrayList<B_Point[]> shape_list;		//블럭 각도별 모양

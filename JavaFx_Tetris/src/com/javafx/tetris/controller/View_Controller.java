@@ -3,6 +3,7 @@ package com.javafx.tetris.controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import com.javafx.tetris.block.B_Point;
 import com.javafx.tetris.block.Block;
 
 import javafx.animation.KeyFrame;
@@ -78,18 +79,42 @@ public class View_Controller implements Initializable {
 		rectangles = new Rectangle[height][width];
 		for(int i=0; i<height; i++){
 			for(int j=0; j<width; j++){
-				rect = new Rectangle(20,20);
+				rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
 				rect.setFill(Color.RED);
 				rectangles[i][j] = rect;
 				gamePanel.add(rect, j, i);
 			}
 		}
-		currBlock.offset.setYX(3, 3);
-		printBlock(currBlock);
+		
+		//printBlock(currBlock);
+		Rectangle[][] rects = new Rectangle[currBlock.PointCnt][currBlock.PointCnt];
+		for(int i=0; i<currBlock.PointCnt; i++){
+			for(int j=0; j<currBlock.PointCnt; j++){
+				rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+				rect.setFill(Color.TRANSPARENT);
+				rects[i][j] = rect;
+				blockPanel.add(rect, j, i);
+			}
+		}		
+		for(int i=0; i<currBlock.shape.length; i++){
+			int x = currBlock.shape[i].getX()+1;
+			int y = currBlock.shape[i].getY()+1;
+			rects[y][x].setFill(Color.BLACK);
+		}
+		
+		currBlock.offset.setYX(4, 4);
+		blockPanel.setLayoutX(gamePanel.getLayoutX()+((gamePanel.getHgap())*(currBlock.offset.getX()-1))+(BRICK_SIZE*(currBlock.offset.getX()-1)));
+		blockPanel.setLayoutY(gamePanel.getLayoutY()+((gamePanel.getVgap())*(currBlock.offset.getY()-1))+(BRICK_SIZE*(currBlock.offset.getY()-1)));
 	}
 	
-	private void printBlock(Block currBlock) {
+	private void printBlock(/*B_Point[] clear,*/ Block currBlock) {
 		// TODO Auto-generated method stub
+//		for(int i=0; i<clear.length; i++){
+//			int x = clear[i].getX();
+//			int y = clear[i].getY();
+//			rectangles[y][x].setFill(Color.RED);
+//		}		
+		
 		for(int i=0; i<currBlock.shape.length; i++){
 			int x = currBlock.getCurrPoint()[i].getX();
 			int y = currBlock.getCurrPoint()[i].getY();

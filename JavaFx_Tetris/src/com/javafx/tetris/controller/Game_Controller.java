@@ -15,6 +15,7 @@ public class Game_Controller {
 		this.view_ctr = c;
 		block_ctr.blockCreate();
 		view_ctr.initGameView(height, witdh, block_ctr.currBlock);
+		//점수바인드
 		
 		//controller.createbrick();
 	}	
