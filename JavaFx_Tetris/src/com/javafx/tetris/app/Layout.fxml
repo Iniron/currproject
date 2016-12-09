@@ -17,6 +17,9 @@
 	</BorderPane>
 	<GridPane fx:id="blockPanel" vgap="1" hgap="1"/>
 	
+	<VBox layoutX="240" layoutY="20" alignment="CENTER">
+		<Button fx:id="startButton"  text="Start"/>
+	</VBox>
 </Pane>
 
 

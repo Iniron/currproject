@@ -37,4 +37,18 @@ public class Block {
 		}
 		return temp;
 	}
+	
+	public B_Point[] getNextShape(){
+		int nextangle = angle;
+		if(nextangle==shape_list.size()-1) nextangle=0;
+		else nextangle++;
+		
+		B_Point[] temp = new B_Point[PointCnt];
+		for (int i=0; i<shape_list.get(nextangle).length; i++){                  
+			int x = shape_list.get(nextangle)[i].getX() + offset.getX();  
+			int y = shape_list.get(nextangle)[i].getY() + offset.getY();
+			temp[i] = new B_Point(y,x);
+		}
+		return temp;
+	}
 }

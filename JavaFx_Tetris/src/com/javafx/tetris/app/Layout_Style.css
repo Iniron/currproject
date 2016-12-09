@@ -1,3 +1,15 @@
 .root {
     -fx-background-image: url("background_image.png");
 }
+
+#blockPanel{
+	-fx-border-color: white;
+	-fx-border-width: 1px;
+}
+
+#gamePanel{
+	-fx-border-color: white;
+	-fx-border-width: 1px;
+}
+
+

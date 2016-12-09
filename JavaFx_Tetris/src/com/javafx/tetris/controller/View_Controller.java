@@ -10,6 +10,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -26,7 +27,11 @@ public class View_Controller implements Initializable {
 	@FXML
 	private GridPane blockPanel;
 	
-	Rectangle[][] rectangles;
+	@FXML
+	private Button startButton;
+	
+	Rectangle[][] gameRects;
+	Rectangle[][] blockRects;
 	
 	private Game_Controller game_ctr;	
 	
@@ -38,88 +43,108 @@ public class View_Controller implements Initializable {
 		gamePanel.requestFocus();
 		gamePanel.setOnKeyPressed(event->{
 			if(event.getCode()==KeyCode.UP){
-				System.out.println("up");
-				
+				Block currBlock = game_ctr.rotateEvent();
+				refreshBlockPanel(currBlock);
+				setBlockPanel(currBlock);
+				event.consume();
 			}
 			if(event.getCode()==KeyCode.DOWN){
-				System.out.println("down");
-				
-				printBlock(game_ctr.downEvent());
-				//gamePanel.getChildren();
-				//int index = gamePanel.getChildren().indexOf(curr_rect);
-				//moveBlock(1, 0);
-				//printBlock();
+				setBlockPanel(game_ctr.downEvent());
+				event.consume();
 			}
 			if(event.getCode()==KeyCode.LEFT){
-				System.out.println("left");
-				//moveBlock(-1, 0);
+				setBlockPanel(game_ctr.leftEvent());
+				event.consume();
 			}
 			if(event.getCode()==KeyCode.RIGHT){
-				System.out.println("right");
-				//moveBlock(1, 0);				
+				setBlockPanel(game_ctr.rightEvent());
+				event.consume();
 			}
-			
+			if(event.getCode()==KeyCode.SPACE){
+				Block currBlock;
+				do{
+					currBlock = game_ctr.downEvent(); 
+					setBlockPanel(currBlock);
+				}while(currBlock!=null);
+				event.consume();			
+			}
 		});
-
 	}
 	
 	public void setGameController(Game_Controller game_ctr) {
 		this.game_ctr = game_ctr;
 	}
 	
-	public void moveBlock(int off_y, int off_x) {
-		// TODO Auto-generated method stub		
-	
-		
-		
-	}
-	
 	public void initGameView(int height, int width, Block currBlock) {
 		Rectangle rect;
-		rectangles = new Rectangle[height][width];
+		gameRects = new Rectangle[height][width];			//setGamePanel
 		for(int i=0; i<height; i++){
 			for(int j=0; j<width; j++){
 				rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-				rect.setFill(Color.RED);
-				rectangles[i][j] = rect;
+				rect.setFill(Color.TRANSPARENT);
+				gameRects[i][j] = rect;
 				gamePanel.add(rect, j, i);
 			}
 		}
 		
-		//printBlock(currBlock);
-		Rectangle[][] rects = new Rectangle[currBlock.PointCnt][currBlock.PointCnt];
+		blockRects = new Rectangle[currBlock.PointCnt][currBlock.PointCnt];
 		for(int i=0; i<currBlock.PointCnt; i++){
 			for(int j=0; j<currBlock.PointCnt; j++){
 				rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
 				rect.setFill(Color.TRANSPARENT);
-				rects[i][j] = rect;
+				blockRects[i][j] = rect;
 				blockPanel.add(rect, j, i);
 			}
-		}		
+		}
+		
+		refreshBlockPanel(currBlock);
+		currBlock.offset.setYX(1, 4);
+		setBlockPanel(currBlock);
+	}
+	
+	private void refreshBlockPanel(Block currBlock) {
+		if(currBlock==null){
+			System.out.println("unable to rotate");
+			return;
+		} 
+		for(int i=0; i<currBlock.PointCnt; i++){
+			for(int j=0; j<currBlock.PointCnt; j++){
+				blockRects[i][j].setFill(Color.TRANSPARENT);
+			}
+		}
+		
 		for(int i=0; i<currBlock.shape.length; i++){
 			int x = currBlock.shape[i].getX()+1;
 			int y = currBlock.shape[i].getY()+1;
-			rects[y][x].setFill(Color.BLACK);
+			blockRects[y][x].setFill(currBlock.color);
 		}
-		
-		currBlock.offset.setYX(4, 4);
-		blockPanel.setLayoutX(gamePanel.getLayoutX()+((gamePanel.getHgap())*(currBlock.offset.getX()-1))+(BRICK_SIZE*(currBlock.offset.getX()-1)));
-		blockPanel.setLayoutY(gamePanel.getLayoutY()+((gamePanel.getVgap())*(currBlock.offset.getY()-1))+(BRICK_SIZE*(currBlock.offset.getY()-1)));
 	}
 	
-	private void printBlock(/*B_Point[] clear,*/ Block currBlock) {
+	private void refreshGamePanel() {
+		
+	}
+	
+	
+	private void setBlockPanel(Block currBlock) {
 		// TODO Auto-generated method stub
 //		for(int i=0; i<clear.length; i++){
 //			int x = clear[i].getX();
 //			int y = clear[i].getY();
 //			rectangles[y][x].setFill(Color.RED);
 //		}		
+		if(currBlock==null){
+			System.out.println("unable to move");
+			return;
+		}else{
+			blockPanel.setLayoutX(gamePanel.getLayoutX()+((gamePanel.getHgap())*(currBlock.offset.getX()-1))+(BRICK_SIZE*(currBlock.offset.getX()-1)));
+			blockPanel.setLayoutY(gamePanel.getLayoutY()+((gamePanel.getVgap())*(currBlock.offset.getY()-1))+(BRICK_SIZE*(currBlock.offset.getY()-1)));
+		}
 		
-		for(int i=0; i<currBlock.shape.length; i++){
-			int x = currBlock.getCurrPoint()[i].getX();
-			int y = currBlock.getCurrPoint()[i].getY();
-			rectangles[y][x].setFill(currBlock.color);
-		}		
+//		for(int i=0; i<currBlock.shape.length; i++){
+//			int x = currBlock.getCurrPoint()[i].getX();
+//			int y = currBlock.getCurrPoint()[i].getY();
+//			rectangles[y][x].setFill(currBlock.color);
+//		}		
 	}
 	
 //	public void createbrick() {

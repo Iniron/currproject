@@ -23,7 +23,7 @@ public class Main extends Application{
 	 	    
 		Scene scene = new Scene(root, 300, 540);
 		primaryStage.setScene(scene);
-		primaryStage.setTitle("LayoutEx");
+		primaryStage.setTitle("Tetris Game");
 		primaryStage.show();
 		
 		g = new Game_Controller(v_controller);	//게임 컨트롤러 생성
