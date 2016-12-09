@@ -17,6 +17,7 @@ public class Game_Controller {
 	public Game_Controller(View_Controller c) {
 		this.view_ctr = c;
 		block_ctr.blockCreate();
+		//block_ctr.getBlock();
 		view_ctr.initGameView(height, width, block_ctr.currBlock);
 		//점수바인드
 		
@@ -29,6 +30,8 @@ public class Game_Controller {
 			int x = temp[i].getX();
 			int y = temp[i].getY() + 1;
 			if(y==height || !view_ctr.gameRects[y][x].getFill().equals(Color.TRANSPARENT)){
+				view_ctr.refreshGamePanel(block_ctr.currBlock);
+				//block_ctr.getBlock();
 				return null;
 			}
 		}

@@ -102,6 +102,8 @@ public class View_Controller implements Initializable {
 		setBlockPanel(currBlock);
 	}
 	
+	
+	//블럭 패널을 새로고침
 	private void refreshBlockPanel(Block currBlock) {
 		if(currBlock==null){
 			System.out.println("unable to rotate");
@@ -112,7 +114,6 @@ public class View_Controller implements Initializable {
 				blockRects[i][j].setFill(Color.TRANSPARENT);
 			}
 		}
-		
 		for(int i=0; i<currBlock.shape.length; i++){
 			int x = currBlock.shape[i].getX()+1;
 			int y = currBlock.shape[i].getY()+1;
@@ -120,18 +121,20 @@ public class View_Controller implements Initializable {
 		}
 	}
 	
-	private void refreshGamePanel() {
-		
+	//게임 패널을 새로고침
+	public void refreshGamePanel(Block currBlock) {
+		for(int i=0; i<currBlock.shape.length; i++){
+			int x = currBlock.shape[i].getX() + currBlock.offset.getX();
+			int y = currBlock.shape[i].getY() + currBlock.offset.getY();
+			gameRects[y][x].setFill(Color.YELLOW);
+			//gameRects[y][x].setFill(currBlock.color);
+		}
+		currBlock.offset.setYX(1, 4);
+		refreshBlockPanel(currBlock);
 	}
 	
 	
 	private void setBlockPanel(Block currBlock) {
-		// TODO Auto-generated method stub
-//		for(int i=0; i<clear.length; i++){
-//			int x = clear[i].getX();
-//			int y = clear[i].getY();
-//			rectangles[y][x].setFill(Color.RED);
-//		}		
 		if(currBlock==null){
 			System.out.println("unable to move");
 			return;
@@ -139,12 +142,6 @@ public class View_Controller implements Initializable {
 			blockPanel.setLayoutX(gamePanel.getLayoutX()+((gamePanel.getHgap())*(currBlock.offset.getX()-1))+(BRICK_SIZE*(currBlock.offset.getX()-1)));
 			blockPanel.setLayoutY(gamePanel.getLayoutY()+((gamePanel.getVgap())*(currBlock.offset.getY()-1))+(BRICK_SIZE*(currBlock.offset.getY()-1)));
 		}
-		
-//		for(int i=0; i<currBlock.shape.length; i++){
-//			int x = currBlock.getCurrPoint()[i].getX();
-//			int y = currBlock.getCurrPoint()[i].getY();
-//			rectangles[y][x].setFill(currBlock.color);
-//		}		
 	}
 	
 //	public void createbrick() {

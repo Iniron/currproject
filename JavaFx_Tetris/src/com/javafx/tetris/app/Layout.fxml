@@ -10,12 +10,13 @@
 		xmlns:fx="http://javafx.com/fxml/1" stylesheets="@Layout_Style.css">
 	<!-- TODO Add Nodes -->
 	<!-- <GridPane fx:id="blockPanel" vgap="1" hgap="1"/> -->
+	<GridPane fx:id="blockPanel" vgap="1" hgap="1"/>
 	<BorderPane>
 		<center>
 			<GridPane fx:id="gamePanel" vgap="1" hgap="1"/>
 		</center>
 	</BorderPane>
-	<GridPane fx:id="blockPanel" vgap="1" hgap="1"/>
+	
 	
 	<VBox layoutX="240" layoutY="20" alignment="CENTER">
 		<Button fx:id="startButton"  text="Start"/>
