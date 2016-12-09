@@ -19,7 +19,7 @@
 	
 	
 	<VBox layoutX="240" layoutY="20" alignment="CENTER">
-		<Button fx:id="startButton"  text="Start"/>
+		<Button fx:id="newGameButton" onAction="#startGame" text="NewGame"/>
 	</VBox>
 </Pane>
 

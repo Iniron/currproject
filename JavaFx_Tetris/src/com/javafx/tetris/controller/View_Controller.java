@@ -8,6 +8,7 @@ import com.javafx.tetris.block.Block;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -28,46 +29,47 @@ public class View_Controller implements Initializable {
 	private GridPane blockPanel;
 	
 	@FXML
-	private Button startButton;
+	private Button newGameButton;
 	
 	Rectangle[][] gameRects;
 	Rectangle[][] blockRects;
+	Timeline timeline;
 	
 	private Game_Controller game_ctr;	
-	
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
+		newGameButton.setFocusTraversable(false);
 		gamePanel.setFocusTraversable(true);
 		gamePanel.requestFocus();
 		gamePanel.setOnKeyPressed(event->{
-			if(event.getCode()==KeyCode.UP){
-				Block currBlock = game_ctr.rotateEvent();
-				refreshBlockPanel(currBlock);
-				setBlockPanel(currBlock);
-				event.consume();
-			}
-			if(event.getCode()==KeyCode.DOWN){
-				setBlockPanel(game_ctr.downEvent());
-				event.consume();
-			}
-			if(event.getCode()==KeyCode.LEFT){
-				setBlockPanel(game_ctr.leftEvent());
-				event.consume();
-			}
-			if(event.getCode()==KeyCode.RIGHT){
-				setBlockPanel(game_ctr.rightEvent());
-				event.consume();
-			}
-			if(event.getCode()==KeyCode.SPACE){
-				Block currBlock;
-				do{
-					currBlock = game_ctr.downEvent(); 
+				if(event.getCode()==KeyCode.UP){
+					Block currBlock = game_ctr.rotateEvent();
+					refreshBlockPanel(currBlock);
 					setBlockPanel(currBlock);
-				}while(currBlock!=null);
-				event.consume();			
-			}
+					event.consume();
+				}
+				if(event.getCode()==KeyCode.DOWN){
+					setBlockPanel(game_ctr.downEvent());
+					event.consume();
+				}
+				if(event.getCode()==KeyCode.LEFT){
+					setBlockPanel(game_ctr.leftEvent());
+					event.consume();
+				}
+				if(event.getCode()==KeyCode.RIGHT){
+					setBlockPanel(game_ctr.rightEvent());
+					event.consume();
+				}
+				if(event.getCode()==KeyCode.SPACE){
+					Block currBlock;
+					do{
+						currBlock = game_ctr.downEvent(); 
+						setBlockPanel(currBlock);
+					}while(currBlock!=null);
+					event.consume();			
+				}
 		});
 	}
 	
@@ -75,7 +77,7 @@ public class View_Controller implements Initializable {
 		this.game_ctr = game_ctr;
 	}
 	
-	public void initGameView(int height, int width, Block currBlock) {
+	public void initGameView(int height, int width) {
 		Rectangle rect;
 		gameRects = new Rectangle[height][width];			//setGamePanel
 		for(int i=0; i<height; i++){
@@ -87,9 +89,9 @@ public class View_Controller implements Initializable {
 			}
 		}
 		
-		blockRects = new Rectangle[currBlock.PointCnt][currBlock.PointCnt];
-		for(int i=0; i<currBlock.PointCnt; i++){
-			for(int j=0; j<currBlock.PointCnt; j++){
+		blockRects = new Rectangle[Block.PointCnt][Block.PointCnt];
+		for(int i=0; i<Block.PointCnt; i++){
+			for(int j=0; j<Block.PointCnt; j++){
 				rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
 				rect.setFill(Color.TRANSPARENT);
 				blockRects[i][j] = rect;
@@ -97,20 +99,24 @@ public class View_Controller implements Initializable {
 			}
 		}
 		
-		refreshBlockPanel(currBlock);
-		currBlock.offset.setYX(1, 4);
-		setBlockPanel(currBlock);
+		blockPanel.setLayoutX(gamePanel.getLayoutX()+((gamePanel.getHgap())*(4-1))+(BRICK_SIZE*(4-1)));
+		blockPanel.setLayoutY(gamePanel.getLayoutY()+((gamePanel.getVgap())*(1-1))+(BRICK_SIZE*(1-1)));
 	}
 	
+	public void initBlockPanel(Block currBlock){
+		currBlock.offset.setYX(-1, 4); //y: -3이 안보일때값
+		setBlockPanel(currBlock);
+		refreshBlockPanel(currBlock);
+	}
 	
 	//블럭 패널을 새로고침
-	private void refreshBlockPanel(Block currBlock) {
+	public void refreshBlockPanel(Block currBlock) {
 		if(currBlock==null){
 			System.out.println("unable to rotate");
 			return;
 		} 
-		for(int i=0; i<currBlock.PointCnt; i++){
-			for(int j=0; j<currBlock.PointCnt; j++){
+		for(int i=0; i<currBlock.shape.length; i++){
+			for(int j=0; j<currBlock.shape.length; j++){
 				blockRects[i][j].setFill(Color.TRANSPARENT);
 			}
 		}
@@ -126,15 +132,29 @@ public class View_Controller implements Initializable {
 		for(int i=0; i<currBlock.shape.length; i++){
 			int x = currBlock.shape[i].getX() + currBlock.offset.getX();
 			int y = currBlock.shape[i].getY() + currBlock.offset.getY();
-			gameRects[y][x].setFill(Color.YELLOW);
-			//gameRects[y][x].setFill(currBlock.color);
+			//gameRects[y][x].setFill(Color.YELLOW);
+			if(y>=0){
+				gameRects[y][x].setFill(currBlock.color);
+			}
 		}
-		currBlock.offset.setYX(1, 4);
-		refreshBlockPanel(currBlock);
+			
+		for(int i=0; i<currBlock.shape.length; i++){
+			int x = currBlock.shape[i].getX() + currBlock.offset.getX();
+			int y = currBlock.shape[i].getY() + currBlock.offset.getY();
+			if(y<0){	//종료
+				timeline.stop();
+				System.out.println("게임종료");
+				return;
+			}
+		}
+		
+		
+		//currBlock.offset.setYX(1, 4);
+		//refreshBlockPanel(currBlock);
 	}
 	
 	
-	private void setBlockPanel(Block currBlock) {
+	public void setBlockPanel(Block currBlock) {
 		if(currBlock==null){
 			System.out.println("unable to move");
 			return;
@@ -142,6 +162,18 @@ public class View_Controller implements Initializable {
 			blockPanel.setLayoutX(gamePanel.getLayoutX()+((gamePanel.getHgap())*(currBlock.offset.getX()-1))+(BRICK_SIZE*(currBlock.offset.getX()-1)));
 			blockPanel.setLayoutY(gamePanel.getLayoutY()+((gamePanel.getVgap())*(currBlock.offset.getY()-1))+(BRICK_SIZE*(currBlock.offset.getY()-1)));
 		}
+	}
+	
+	public void startGame(ActionEvent actionEvent){
+		gamePanel.requestFocus();
+		game_ctr.createNewGame();
+		
+		timeline = new Timeline(new KeyFrame(
+              Duration.millis(500),
+              event -> setBlockPanel(game_ctr.downEvent())
+	    ));
+		timeline.setCycleCount(Timeline.INDEFINITE);
+		timeline.play();
 	}
 	
 //	public void createbrick() {
