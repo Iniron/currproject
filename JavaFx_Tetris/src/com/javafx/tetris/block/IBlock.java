@@ -15,7 +15,8 @@ public class IBlock extends Block {
 		shape_list.add(angle_0);
 		shape_list.add(angle_90);
 		color = Color.SKYBLUE;
-		setAngle((int)(Math.random()*shape_list.size()));
+		//setAngle((int)(Math.random()*shape_list.size()));
+		setAngle(0);
 	}
 	
 }

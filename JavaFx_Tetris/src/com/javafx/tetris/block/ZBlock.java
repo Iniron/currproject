@@ -14,7 +14,8 @@ public class ZBlock extends Block {
 		shape_list.add(angle_0);
 		shape_list.add(angle_90);
 		color = Color.RED;
-		setAngle((int)(Math.random()*shape_list.size()));
+		//setAngle((int)(Math.random()*shape_list.size()));
+		setAngle(0);
 	}
 	
 }

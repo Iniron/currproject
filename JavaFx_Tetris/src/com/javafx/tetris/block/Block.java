@@ -4,12 +4,12 @@ import java.util.ArrayList;
 
 import javafx.scene.paint.Color;
 
-public class Block {
+public class Block{
 	
 	public static final int PointCnt = 4;				//포인트의 개수
 	
 	public B_Point offset;				//블럭의 현재 위치
-	public ArrayList<B_Point[]> shape_list;		//블럭 각도별 모양
+	public final ArrayList<B_Point[]> shape_list;		//블럭 각도별 모양
 	public B_Point[] shape;				//블럭의 모양
 	public Color color;					//블럭의 색상
 	public int angle;					//각도
@@ -20,7 +20,7 @@ public class Block {
 		shape_list = new ArrayList<>();
 		shape = new B_Point[PointCnt];
 	}
-	
+			
 	public void setAngle(int angle){
 		this.angle = angle;//각도 변경
 		//shape = shape_list.get(angle);		//각도에 따라 모양변경
@@ -49,6 +49,7 @@ public class Block {
 			int y = shape_list.get(nextangle)[i].getY() + offset.getY();
 			temp[i] = new B_Point(y,x);
 		}
-		return temp;
+		return temp;		
 	}
+
 }

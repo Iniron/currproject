@@ -21,7 +21,7 @@ public class Main extends Application{
 	    Parent root = fxmlLoader.load();												//fxml을 로드해 root를 설정한다.
 	    View_Controller v_controller = fxmlLoader.getController();						//controller객체를 가져온다.	
 	 	    
-		Scene scene = new Scene(root, 300, 540);
+		Scene scene = new Scene(root, 340, 540);
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Tetris Game");
 		primaryStage.show();

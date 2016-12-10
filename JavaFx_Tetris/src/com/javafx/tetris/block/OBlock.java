@@ -11,7 +11,7 @@ public class OBlock extends Block {
 
 		shape_list.add(angle_0);
 		color = Color.YELLOW;
-		setAngle((int)(Math.random()*shape_list.size()));
-		
+		//setAngle((int)(Math.random()*shape_list.size()));
+		setAngle(0);
 	}
 }

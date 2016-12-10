@@ -23,7 +23,8 @@ public class TBlock extends Block {
 		shape_list.add(angle_180);
 		shape_list.add(angle_270);
 		color = Color.BLUEVIOLET;
-		setAngle((int)(Math.random()*shape_list.size()));
+		//setAngle((int)(Math.random()*shape_list.size()));
+		setAngle(0);
 	}
 	
 }
