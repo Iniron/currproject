@@ -34,8 +34,6 @@ public class Block_Controller {
 		block_list.add(new TBlock());
 		next_list.add(block_list.get((int)(Math.random()*block_list.size())));
 		next_list.add(block_list.get((int)(Math.random()*block_list.size())));
-		
-		//currBlock = getBlock();
 	}
 	
 	public void getBlock(){				
@@ -62,7 +60,6 @@ public class Block_Controller {
 	}
 	
 	public void rotate(){
-		//System.out.println("currBlock.shape_list.size: " + currBlock.shape_list.size());
 		if(currBlock.shape_list.size() == 1) return;
 		if(currBlock.angle == currBlock.shape_list.size()-1){
 			currBlock.setAngle(0);

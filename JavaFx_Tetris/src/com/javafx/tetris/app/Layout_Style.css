@@ -3,8 +3,8 @@
 }
 
 #blockPanel{
-	-fx-border-color: white;
-	-fx-border-width: 1px;
+/* 	-fx-border-color: white;
+	-fx-border-width: 1px; */
 }
 
 #gamePanel{
@@ -12,4 +12,12 @@
 	-fx-border-width: 1px;
 }
 
-
+.gameOverLabel{
+	-fx-font-size: 28px;
+	-fx-font-family: "Arial Black";
+	-fx-alignment: center;
+	-fx-fill: #818181;
+	-fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.7) , 6, 0.0 , 0 , 2 );
+	-fx-background-color: rgba(198, 198, 198, 0.5);
+	
+}

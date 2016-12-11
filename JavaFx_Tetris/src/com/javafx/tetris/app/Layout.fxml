@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.Pane?>
+<?import com.javafx.tetris.app.GameOverPanel?>
 
 <Pane fx:controller="com.javafx.tetris.controller.View_Controller"
 		xmlns:fx="http://javafx.com/fxml/1" stylesheets="@Layout_Style.css">
@@ -21,6 +22,9 @@
 	<VBox layoutX="240" layoutY="20" alignment="CENTER">
 		<Button fx:id="newGameButton" text="NewGame"/>
 	</VBox>
+	
+	
+	<GameOverPanel  fx:id="gameOverPanel"/>
 </Pane>
 
 

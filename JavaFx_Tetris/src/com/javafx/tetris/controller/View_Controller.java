@@ -1,24 +1,24 @@
 package com.javafx.tetris.controller;
 
 import java.net.URL;
+import java.util.Queue;
 import java.util.ResourceBundle;
 
-import com.javafx.tetris.block.B_Point;
+import com.javafx.tetris.app.GameOverPanel;
 import com.javafx.tetris.block.Block;
 
 import javafx.animation.Animation.Status;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-import oracle.net.aso.g;
 
 public class View_Controller implements Initializable {
 	
@@ -33,12 +33,15 @@ public class View_Controller implements Initializable {
 	@FXML
 	private Button newGameButton;
 	
+	@FXML
+    private GameOverPanel gameOverPanel;
+	
+	private Game_Controller game_ctr;
+	boolean isKey = false;
+	
 	Rectangle[][] gameRects;
 	Rectangle[][] blockRects;
 	Timeline timeline;
-	boolean isKey = false;
-	
-	private Game_Controller game_ctr;	
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -68,12 +71,16 @@ public class View_Controller implements Initializable {
 				}
 				if(event.getCode()==KeyCode.SPACE){
 					Block currBlock;
-					while(true){
+//					while(true){
+//						currBlock = game_ctr.downEvent();
+//						if(currBlock==null) break;
+//						else setBlockPanel(currBlock);
+//					}
+					do{
 						currBlock = game_ctr.downEvent();
-						if(currBlock==null) break;
-						else setBlockPanel(currBlock);
-					}
-					event.consume();	//문제는 스페이스 때문...이었...
+						setBlockPanel(currBlock);
+					}while(currBlock!=null);
+					event.consume();
 				}
 			}
 				if(event.getCode()==KeyCode.ENTER){
@@ -102,7 +109,6 @@ public class View_Controller implements Initializable {
 				gamePanel.add(rect, j, i);
 			}
 		}
-		
 		blockRects = new Rectangle[Block.PointCnt][Block.PointCnt];
 		for(int i=0; i<Block.PointCnt; i++){
 			for(int j=0; j<Block.PointCnt; j++){
@@ -113,8 +119,12 @@ public class View_Controller implements Initializable {
 			}
 		}
 		
-		blockPanel.setLayoutX(gamePanel.getLayoutX()+((gamePanel.getHgap())*(4-1))+(BRICK_SIZE*(4-1)));
-		blockPanel.setLayoutY(gamePanel.getLayoutY()+((gamePanel.getVgap())*(-1-1))+(BRICK_SIZE*(-1-1)));
+		gameOverPanel.setPrefWidth(gamePanel.getLayoutX()+(gamePanel.getHgap()*width+1)+(BRICK_SIZE*width));
+		gameOverPanel.setPrefHeight((gamePanel.getLayoutY()+(gamePanel.getVgap()*height+1)+(BRICK_SIZE*height)));
+		//gameOverPanel.setStyle("-fx-border-color:white; -fx-border-width:1px;");
+		
+		//blockPanel.setLayoutX(gamePanel.getLayoutX()+((gamePanel.getHgap())*(4-1))+(BRICK_SIZE*(4-1)));
+		//blockPanel.setLayoutY(gamePanel.getLayoutY()+((gamePanel.getVgap())*(-1-1))+(BRICK_SIZE*(-1-1)));
 	}
 	
 	public void initBlockPanel(Block currBlock){
@@ -127,7 +137,7 @@ public class View_Controller implements Initializable {
 	//블럭 패널을 새로고침
 	public void refreshBlockPanel(Block currBlock) {
 		if(currBlock==null){
-			System.out.println("unable to rotate");
+			//System.out.println("unable to rotate");
 			return;
 		} 
 		for(int i=0; i<currBlock.shape.length; i++){
@@ -143,104 +153,86 @@ public class View_Controller implements Initializable {
 	}
 	
 	//게임 패널을 새로고침
-	public void refreshGamePanel(Block currBlock) {
+	public boolean refreshGamePanel(Block currBlock) {
 		for(int i=0; i<currBlock.getCurrPoint().length; i++){
 			int x = currBlock.getCurrPoint()[i].getX();
 			int y = currBlock.getCurrPoint()[i].getY();
-			//화면에 보여지는 곳 && 투명한 곳 색칠가능
+			//화면에 보여지는 곳과 투명한 곳만 색칠가능
 			if(y>=0 && gameRects[y][x].getFill().equals(Color.TRANSPARENT)){
 				gameRects[y][x].setFill(currBlock.color);
 			}
 		}
-					
 		for(int i=0; i<currBlock.getCurrPoint().length; i++){
 			int y = currBlock.getCurrPoint()[i].getY();
-			if(y<0){	
-				//종료함수 실행
-				//timeline.stop();
-				isKey = false;
-				//종료시 패널을 새로 칠하면 안되게 세팅해야함
-				System.out.println("게임종료");
-				return;
+			if(y<0){
+				gameOver();
+				return false;
 			}
 		}
+		return true;
 	}
 	
 	
 	public void setBlockPanel(Block currBlock) {
 		if(currBlock==null){
-			System.out.println("unable to move");
+			//System.out.println("unable to move");
 			return;
 		}else{
-			blockPanel.setLayoutX(gamePanel.getLayoutX()+((gamePanel.getHgap())*(currBlock.offset.getX()-1))+(BRICK_SIZE*(currBlock.offset.getX()-1)));
-			blockPanel.setLayoutY(gamePanel.getLayoutY()+((gamePanel.getVgap())*(currBlock.offset.getY()-1))+(BRICK_SIZE*(currBlock.offset.getY()-1)));
+			blockPanel.setLayoutX(gamePanel.getLayoutX()+(gamePanel.getHgap()*currBlock.offset.getX())+(BRICK_SIZE*(currBlock.offset.getX()-1)));
+			blockPanel.setLayoutY(gamePanel.getLayoutY()+(gamePanel.getVgap()*currBlock.offset.getY())+(BRICK_SIZE*(currBlock.offset.getY()-1)));
 		}
 	}
 	
-	public void startGame(){
-		//필요할 경우 timeline정지 후 그래픽 처리후 다시시작 해야한다. 
+	public void startGame(int height, int width){
+		//필요할 경우 timeline정지 후 그래픽 처리후 다시시작 해야한다.
+		gameOverPanel.setVisible(false);
 		gamePanel.requestFocus();		//포커스를 게임패널에 맞춤
 		isKey = true;					//키입력 허용
 		//백그라운드 전체 지움
-		
-//		if((timeline==null) || (timeline.getStatus()==Status.STOPPED)){
-//			timeline = new Timeline(new KeyFrame(
-//	              Duration.millis(500),
-//	              event -> setBlockPanel(game_ctr.downEvent())
-//		    ));
-//			timeline.setCycleCount(Timeline.INDEFINITE);
-//			timeline.play();
-//		}
-	}
-	
-	public void deleteLine(int line/*인자로 넓이 받기*/){
-		//timeline.stop();
-				
-		//System.out.println("top: " + min);
-		//System.out.println("bottom" + max);
-		
-		for(int i=line; i>=0; i--){
-			for(int j=0; j<10; j++){
-				if(i>0)
-				gameRects[i][j].setFill(gameRects[i-1][j].getFill());
-				if(i==0)
-					gameRects[i][j].setFill(Color.TRANSPARENT);
+		for(int i=0; i<height; i++){
+			for(int j=0; j<width; j++){
+				gameRects[i][j].setFill(Color.TRANSPARENT);
 			}
 		}
 		
-		
-		
-		
-		//timeline.play();
+		if((timeline==null) || (timeline.getStatus()==Status.STOPPED)){
+			timeline = new Timeline(new KeyFrame(
+	              Duration.millis(500),
+	              event -> setBlockPanel(game_ctr.downEvent())
+		    ));
+			timeline.setCycleCount(Timeline.INDEFINITE);
+			timeline.play();
+		}
 	}
 	
+	public void gameOver(){
+		timeline.stop();
+		//종료 패널 띄움
+		gameOverPanel.gameOverLabel.setText("GAME OVER");
+		gameOverPanel.setVisible(true);
+		
+		isKey = false;
+		System.out.println("게임 종료");
+	}
 	
-	
-//	public void createbrick() {
-////		curr_rect = new Rectangle(20,20);
-////		curr_rect.setFill(Color.BLUE);
-////		gamePanel.add(curr_rect, 4, 0);
-//		curr_block = new Block();
-//        for(int i=0; i<curr_block.locations.length; i++){
-////        	curr_rect = new Rectangle(20,20);
-////        	curr_rect.setFill(curr_block.color);
-//   
-//        	int x = curr_block.locations[i].getX()+4;
-//        	int y = curr_block.locations[i].getY();
-//        	//rectangles[y][x].setFill(Color.BLUE);
-//        	curr_block.locations[i].setXY(x, y);
-//    		
-//        	//gamePanel.add(rect, curr_block.locations[i].getY(), curr_block.locations[i].getX());
-//        }
-//		
-//		timeLine = new Timeline(new KeyFrame(
-//                Duration.millis(500),
-//                ae -> moveBlock(0, 1)
-//        ));
-//        timeLine.setCycleCount(Timeline.INDEFINITE);
-//        timeLine.play();
-//        
-//        
-//	}
+	public void deleteLine(Queue<Paint[]> keepRows, Queue<Integer> delRows, int width, int height){
+		timeline.stop();
 
+		//줄삭제 효과 적용 예정
+//		for(int i=height-1; i>=0; i--){
+//			if(!delRows.isEmpty() && (delRows.poll()==i)){
+//				for(int j=0; j<width; j++)
+//					gameRects[i][j].setFill(Color.TRANSPARENT);
+//			}
+//		}
+
+		for(int i=height-1; i>=0; i--){
+			Paint[] newRows = keepRows.poll();		
+			for(int j=0; j<width; j++)
+				if(newRows!=null) gameRects[i][j].setFill(newRows[j]);
+				else gameRects[i][j].setFill(Color.TRANSPARENT);
+		}
+		
+		timeline.play();
+	}
 }

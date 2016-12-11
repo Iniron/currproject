@@ -1,9 +1,13 @@
 package com.javafx.tetris.controller;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import com.javafx.tetris.block.B_Point;
 import com.javafx.tetris.block.Block;
 
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 public class Game_Controller {
 	
@@ -21,10 +25,9 @@ public class Game_Controller {
 		//점수바인드
 	}
 	
-	
 	public void createNewGame(){
 		newAction();
-		view_ctr.startGame();							//새로운 게임시작
+		view_ctr.startGame(height, width);				//새로운 게임시작
 	}
 	
 	public void newAction(){
@@ -42,24 +45,19 @@ public class Game_Controller {
 				view_ctr.refreshGamePanel(block_ctr.currBlock);
 				checkLine();
 				newAction();
-				
-				//줄제거
 				return null;
 			}
 			else if(y>=0){
 				if(!view_ctr.gameRects[y][x].getFill().equals(Color.TRANSPARENT)){
-					view_ctr.refreshGamePanel(block_ctr.currBlock);
-					checkLine();
-					newAction();
+					if(view_ctr.refreshGamePanel(block_ctr.currBlock)){
+						checkLine();
+						newAction();
+					}
 					return null;
 				}
 			}
-			
 		}
 		block_ctr.moveDown();
-//		if(block_ctr.currBlock.offset.getY()>0){
-//			view_ctr.isKey = true;
-//		}
 		return block_ctr.currBlock;
 	}
 	
@@ -87,7 +85,7 @@ public class Game_Controller {
 			int y = temp[i].getY();
 			
 			if(x==width) return null;
-			if(y>=0){
+			else if(y>=0){
 				if(!view_ctr.gameRects[y][x].getFill().equals(Color.TRANSPARENT)){
 					return null;
 				}
@@ -115,34 +113,28 @@ public class Game_Controller {
 		return block_ctr.currBlock;
 	}
 	
-	public void checkLine(){
-		System.out.println("줄삭제 로직 실행됨");
+	public void checkLine(){			
+		Queue<Integer> delRows = new LinkedList<>();
+		Queue<Paint[]> keepRows = new LinkedList<>();
 		
-		int min = 19;
-		int max = 0;
-		
-		for(int i=0; i<block_ctr.currBlock.getCurrPoint().length; i++){
-			int y = block_ctr.currBlock.getCurrPoint()[i].getY();
-			if(max < y) max = y; 
-			if(min > y) min = y;
-		}
-		
-		for(int i=max; i>=min-1; i--){
-			boolean isLine = true;
-			for(int j=0; j<10; j++){
-				if(view_ctr.gameRects[i][j].getFill().equals(Color.TRANSPARENT)){
-					//하나라도 빈곳이 있으면 튕
-					isLine = false;	
-					break;
+		for(int i=height-1; i>=0; i--){
+			Paint[] tmpRow = new Paint[width];
+			boolean isDel = false;
+			for(int j=0; j<width; j++){
+				if((tmpRow[j]=view_ctr.gameRects[i][j].getFill())==Color.TRANSPARENT){ //하나라도 빈곳이 있으면 break;
+					isDel = true;
 				}
 			}
-			if(isLine){
-				view_ctr.deleteLine(i);
+			if(!isDel){
+				System.out.println(i + "번 줄 제거");
+				delRows.add(i);
+			}
+			else{
+				keepRows.add(tmpRow);
 			}
 		}
-		
-		
-		
+		if(delRows!=null)
+			view_ctr.deleteLine(keepRows, delRows, width, height);
 	}
 	
 }
