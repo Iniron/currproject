@@ -9,10 +9,13 @@ import com.javafx.tetris.block.B_Point;
 import com.javafx.tetris.block.Block;
 
 import javafx.animation.Animation.Status;
+import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
@@ -36,6 +39,9 @@ public class View_Controller implements Initializable {
 	private GridPane blockPanel;
 	
 	@FXML
+	private GridPane animationPanel;
+	
+	@FXML
 	private BorderPane borderPane;
 	
 	@FXML
@@ -53,6 +59,7 @@ public class View_Controller implements Initializable {
 	Rectangle[][] gameRects;
 	Rectangle[][] ghostRects;
 	Rectangle[][] blockRects;	
+	Rectangle[][] animationRects;	
 	Timeline timeline;
 	
 	@Override
@@ -120,7 +127,8 @@ public class View_Controller implements Initializable {
 	public void initGameView(int height, int width) {
 		Rectangle rect;
 		gameRects = new Rectangle[height][width];			//set gamePanel
-		ghostRects = new Rectangle[height][width];			//set ghostPanel 
+		ghostRects = new Rectangle[height][width];			//set ghostPanel
+		animationRects = new Rectangle[height][width];
 		for(int i=0; i<height; i++){
 			for(int j=0; j<width; j++){
 				rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
@@ -131,7 +139,12 @@ public class View_Controller implements Initializable {
 				rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
 				rect.setFill(Color.TRANSPARENT);
 				ghostRects[i][j] = rect;
-				ghostPanel.add(rect, j, i);				
+				ghostPanel.add(rect, j, i);
+				
+				rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+				rect.setFill(Color.TRANSPARENT);
+				animationRects[i][j] = rect;
+				animationPanel.add(rect, j, i);
 			}
 		}
 		blockRects = new Rectangle[Block.PointCnt][Block.PointCnt];
@@ -211,45 +224,46 @@ public class View_Controller implements Initializable {
 	}
 	
 	public void showGhostBlock(Block currBlock){
+		//ghostPanel 새로고침
 		for(int i=0; i<20; i++){
 			for(int j=0; j<10; j++){
-				ghostRects[i][j].setFill(Color.TRANSPARENT);
+				ghostRects[i][j].setFill(Color.TRANSPARENT);	
 			}
 		}
-		
-//		int x=0;
-//		int y=0;
-//		boolean isok=false;
-//		B_Point[] temp = currBlock.getCurrPoint();
-//		while(true){
-//			for(int i=0; i<temp.length; i++){
-//				x = temp[i].getX();
-//				y = temp[i].getY() + 1;
-//				//화면에 보여지는 곳과 투명한 곳만 색칠가능
-//				if(y>=0 && y<20){
-//					if(y==19 || (!gameRects[y][x].getFill().equals(Color.TRANSPARENT))){
-//						isok=true;
-//						break;
-//					}
-//				}
-//			}
-//			if(isok){
-//				break;
-//			}
-//		}
-//		ghostRects[y][x].setFill(Color.BLACK);
+		//ghostBlock을 그린다
+		int lineCnt=0;
+		boolean isStop=false;
+		B_Point[] temp = currBlock.getCurrPoint();
+		while(!isStop){
+			lineCnt++;
+			for(int i=0; i<temp.length; i++){
+				int x = temp[i].getX();
+				int y = temp[i].getY() + lineCnt;
+				if(y>=0){
+					if(y==20 || (!gameRects[y][x].getFill().equals(Color.TRANSPARENT))){
+						isStop=true;
+						lineCnt--;
+						break;
+					}
+				}
+			}
+		}
+		for(int i=0; i<temp.length; i++){
+			int x = temp[i].getX();  
+			int y = temp[i].getY() + lineCnt;
+			if(y>=0){
+				ghostRects[y][x].setFill(currBlock.color);
+				ghostRects[y][x].setOpacity(0.3);
+			}
+		}
 	}
 	
-	public void startGame(int height, int width){
+	public void startGame(){
 		//필요할 경우 timeline정지 후 그래픽 처리후 다시시작 해야한다.
 		gameOverPanel.setVisible(false);
 		gamePanel.requestFocus();					//포커스를 게임패널에 맞춤
 		isKey = true;								//키입력 허용
-		for(int i=0; i<height; i++){				//백그라운드 전체 지움
-			for(int j=0; j<width; j++){
-				gameRects[i][j].setFill(Color.TRANSPARENT);
-			}
-		}
+		
 		
 		if((timeline==null)){
 			timeline = new Timeline(new KeyFrame(
@@ -264,32 +278,83 @@ public class View_Controller implements Initializable {
 		}
 	}
 	
+	//백그라운드 전체 지움
+	public void clearBackGround(int height, int width){
+		for(int i=0; i<height; i++){				
+			for(int j=0; j<width; j++){
+				gameRects[i][j].setFill(Color.TRANSPARENT);
+			}
+		}
+	}
+	
 	public void gameOver(){
 		timeline.stop();
 		//종료 패널 띄움
 		gameOverPanel.gameOverLabel.setText("GAME OVER");
 		gameOverPanel.setVisible(true);
-		
 		isKey = false;
 		System.out.println("게임 종료");
 	}
 	
 	public void deleteLine(Queue<Paint[]> keepRows, Queue<Integer> delRows, int width, int height){
 		timeline.stop();
-
+		System.out.println("진입");
+		System.out.println(delRows.toString());
 		//줄삭제 효과 적용 예정
-//		for(int i=height-1; i>=0; i--){
-//			if(!delRows.isEmpty() && (delRows.poll()==i)){
-//				for(int j=0; j<width; j++)
-//					gameRects[i][j].setFill(Color.TRANSPARENT);
+		
+		for(int i=0; i<height; i++){				
+			for(int j=0; j<width; j++){
+				ghostRects[i][j].setFill(Color.TRANSPARENT);
+			}
+		}
+		
+		//큐에 관해 코드 재분석(peek,poll,isempty)
+		for(int i=height-1; i>=0; i--){
+			if(!delRows.isEmpty() && delRows.peek()==i){
+				for(int j=0; j<width; j++){
+					ghostRects[i][j].setFill(gameRects[i][j].getFill());
+					gameRects[i][j].setFill(Color.TRANSPARENT);
+				}
+				delRows.poll();
+			}
+		}
+		
+//		for(int i=0; i<height; i++){
+//			for(int j=0; j<width; j++){
+//				gameRects[0][0].setFill(Color.BLACK);
 //			}
 //		}
-
+		
+//		gameRects[0][0].setFill(Color.BLACK);
+//		gameRects[0][0].setOpacity(0.4);
+//		Timeline effect = new Timeline();
+//		KeyValue keyValue = new KeyValue(gameRects[0][0].opacityProperty(), 0.1);
+//		KeyFrame keyFrame = new KeyFrame(Duration.millis(100), keyValue);
+//		effect.getKeyFrames().add(keyFrame);
+//
+//		//timeline.setCycleCount(3);
+//		timeline.play();
+			
+		
+		FadeTransition fadeTransition = new FadeTransition(Duration.millis(200), ghostPanel);
+		fadeTransition.setFromValue(1.0);
+		fadeTransition.setToValue(0.0);
+		fadeTransition.setCycleCount(3);
+		fadeTransition.play();
+		fadeTransition.setOnFinished(event->{
+			ok(keepRows, delRows, width, height);
+		});
+		
+		
+		
+	}
+	
+	public void ok(Queue<Paint[]> keepRows, Queue<Integer> delRows, int width, int height){
 		for(int i=height-1; i>=0; i--){
 			Paint[] newRows = keepRows.poll();		
 			for(int j=0; j<width; j++)
 				if(newRows!=null) gameRects[i][j].setFill(newRows[j]);
-				else gameRects[i][j].setFill(Color.TRANSPARENT);
+				//else gameRects[i][j].setFill(Color.TRANSPARENT);
 		}
 		
 		timeline.play();

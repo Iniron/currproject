@@ -15,8 +15,8 @@ public class Game_Controller {
 	private final Block_Controller block_ctr = new Block_Controller();
 	//public Game_Controller g = this;
 	
-	private final int height = 20;			//게임패널의 높이
-	private final int width = 10;			//게임패널의 넓이
+	public final int height = 20;			//게임패널의 높이
+	public final int width = 10;			//게임패널의 넓이
 	
 	public Game_Controller(View_Controller c) {
 		this.view_ctr = c;
@@ -26,8 +26,10 @@ public class Game_Controller {
 	}
 	
 	public void createNewGame(){
+		view_ctr.clearBackGround(height, width);
 		newAction();
-		view_ctr.startGame(height, width);				//새로운 게임시작
+		view_ctr.startGame();				//새로운 게임시작
+		
 	}
 	
 	public void newAction(){
@@ -44,8 +46,9 @@ public class Game_Controller {
 			if(y>=0){
 				if(y==height || !view_ctr.gameRects[y][x].getFill().equals(Color.TRANSPARENT)){
 					if(view_ctr.refreshGamePanel(block_ctr.currBlock)){
-						checkLine();
 						newAction();
+						checkLine();
+						
 					}
 					return null;
 				}
@@ -126,7 +129,7 @@ public class Game_Controller {
 				keepRows.add(tmpRow);
 			}
 		}
-		if(delRows!=null)
+		if(!delRows.isEmpty())
 			view_ctr.deleteLine(keepRows, delRows, width, height);
 	}
 	
