@@ -41,14 +41,8 @@ public class Game_Controller {
 			int x = temp[i].getX();
 			int y = temp[i].getY() + 1;
 			
-			if(y==height){
-				view_ctr.refreshGamePanel(block_ctr.currBlock);
-				checkLine();
-				newAction();
-				return null;
-			}
-			else if(y>=0){
-				if(!view_ctr.gameRects[y][x].getFill().equals(Color.TRANSPARENT)){
+			if(y>=0){
+				if(y==height || !view_ctr.gameRects[y][x].getFill().equals(Color.TRANSPARENT)){
 					if(view_ctr.refreshGamePanel(block_ctr.currBlock)){
 						checkLine();
 						newAction();
@@ -104,7 +98,6 @@ public class Game_Controller {
 			if(y==height || x<0 || x==width) return null;
 			else if(y>=0){
 				if(!view_ctr.gameRects[y][x].getFill().equals(Color.TRANSPARENT)){
-					System.out.println("null");
 					return null;
 				}
 			}

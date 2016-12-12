@@ -5,6 +5,7 @@ import java.util.Queue;
 import java.util.ResourceBundle;
 
 import com.javafx.tetris.app.GameOverPanel;
+import com.javafx.tetris.block.B_Point;
 import com.javafx.tetris.block.Block;
 
 import javafx.animation.Animation.Status;
@@ -14,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -28,25 +30,36 @@ public class View_Controller implements Initializable {
 	private GridPane gamePanel;
 	
 	@FXML
+	private GridPane ghostPanel;
+	
+	@FXML
 	private GridPane blockPanel;
+	
+	@FXML
+	private BorderPane borderPane;
 	
 	@FXML
 	private Button newGameButton;
 	
 	@FXML
+	private Button pauseButton;
+	
+	@FXML
     private GameOverPanel gameOverPanel;
 	
 	private Game_Controller game_ctr;
-	boolean isKey = false;
+	boolean isKey = false, isGhost = true;
 	
 	Rectangle[][] gameRects;
-	Rectangle[][] blockRects;
+	Rectangle[][] ghostRects;
+	Rectangle[][] blockRects;	
 	Timeline timeline;
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
 		newGameButton.setFocusTraversable(false);
+		pauseButton.setFocusTraversable(false);
 		gamePanel.setFocusTraversable(true);
 		gamePanel.requestFocus();
 		gamePanel.setOnKeyPressed(event->{
@@ -81,16 +94,22 @@ public class View_Controller implements Initializable {
 						setBlockPanel(currBlock);
 					}while(currBlock!=null);
 					event.consume();
-				}
+				}					
 			}
 				if(event.getCode()==KeyCode.ENTER){
 					game_ctr.createNewGame();
 					event.consume();			
 				}
+				if(event.getCode()==KeyCode.P){
+					pauseGame();
+					event.consume();
+				}
+		});
+		pauseButton.setOnAction(event->{
+			pauseGame();
 		});
 		newGameButton.setOnAction(event->{
 			game_ctr.createNewGame();
-			event.consume();
 		});
 	}
 	
@@ -100,13 +119,19 @@ public class View_Controller implements Initializable {
 	
 	public void initGameView(int height, int width) {
 		Rectangle rect;
-		gameRects = new Rectangle[height][width];			//setGamePanel
+		gameRects = new Rectangle[height][width];			//set gamePanel
+		ghostRects = new Rectangle[height][width];			//set ghostPanel 
 		for(int i=0; i<height; i++){
 			for(int j=0; j<width; j++){
 				rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
 				rect.setFill(Color.TRANSPARENT);
 				gameRects[i][j] = rect;
 				gamePanel.add(rect, j, i);
+				
+				rect = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+				rect.setFill(Color.TRANSPARENT);
+				ghostRects[i][j] = rect;
+				ghostPanel.add(rect, j, i);				
 			}
 		}
 		blockRects = new Rectangle[Block.PointCnt][Block.PointCnt];
@@ -119,10 +144,8 @@ public class View_Controller implements Initializable {
 			}
 		}
 		
-		gameOverPanel.setPrefWidth(gamePanel.getLayoutX()+(gamePanel.getHgap()*width+1)+(BRICK_SIZE*width));
-		gameOverPanel.setPrefHeight((gamePanel.getLayoutY()+(gamePanel.getVgap()*height+1)+(BRICK_SIZE*height)));
-		//gameOverPanel.setStyle("-fx-border-color:white; -fx-border-width:1px;");
-		
+		gameOverPanel.prefWidthProperty().bind(borderPane.widthProperty());
+		gameOverPanel.prefHeightProperty().bind(borderPane.heightProperty());		
 		//blockPanel.setLayoutX(gamePanel.getLayoutX()+((gamePanel.getHgap())*(4-1))+(BRICK_SIZE*(4-1)));
 		//blockPanel.setLayoutY(gamePanel.getLayoutY()+((gamePanel.getVgap())*(-1-1))+(BRICK_SIZE*(-1-1)));
 	}
@@ -181,26 +204,62 @@ public class View_Controller implements Initializable {
 			blockPanel.setLayoutX(gamePanel.getLayoutX()+(gamePanel.getHgap()*currBlock.offset.getX())+(BRICK_SIZE*(currBlock.offset.getX()-1)));
 			blockPanel.setLayoutY(gamePanel.getLayoutY()+(gamePanel.getVgap()*currBlock.offset.getY())+(BRICK_SIZE*(currBlock.offset.getY()-1)));
 		}
+		
+		if(isGhost){
+			showGhostBlock(currBlock);
+		}
+	}
+	
+	public void showGhostBlock(Block currBlock){
+		for(int i=0; i<20; i++){
+			for(int j=0; j<10; j++){
+				ghostRects[i][j].setFill(Color.TRANSPARENT);
+			}
+		}
+		
+//		int x=0;
+//		int y=0;
+//		boolean isok=false;
+//		B_Point[] temp = currBlock.getCurrPoint();
+//		while(true){
+//			for(int i=0; i<temp.length; i++){
+//				x = temp[i].getX();
+//				y = temp[i].getY() + 1;
+//				//화면에 보여지는 곳과 투명한 곳만 색칠가능
+//				if(y>=0 && y<20){
+//					if(y==19 || (!gameRects[y][x].getFill().equals(Color.TRANSPARENT))){
+//						isok=true;
+//						break;
+//					}
+//				}
+//			}
+//			if(isok){
+//				break;
+//			}
+//		}
+//		ghostRects[y][x].setFill(Color.BLACK);
 	}
 	
 	public void startGame(int height, int width){
 		//필요할 경우 timeline정지 후 그래픽 처리후 다시시작 해야한다.
 		gameOverPanel.setVisible(false);
-		gamePanel.requestFocus();		//포커스를 게임패널에 맞춤
-		isKey = true;					//키입력 허용
-		//백그라운드 전체 지움
-		for(int i=0; i<height; i++){
+		gamePanel.requestFocus();					//포커스를 게임패널에 맞춤
+		isKey = true;								//키입력 허용
+		for(int i=0; i<height; i++){				//백그라운드 전체 지움
 			for(int j=0; j<width; j++){
 				gameRects[i][j].setFill(Color.TRANSPARENT);
 			}
 		}
 		
-		if((timeline==null) || (timeline.getStatus()==Status.STOPPED)){
+		if((timeline==null)){
 			timeline = new Timeline(new KeyFrame(
 	              Duration.millis(500),
 	              event -> setBlockPanel(game_ctr.downEvent())
 		    ));
 			timeline.setCycleCount(Timeline.INDEFINITE);
+			timeline.play();
+		}else{
+			timeline.stop();
 			timeline.play();
 		}
 	}
@@ -234,5 +293,19 @@ public class View_Controller implements Initializable {
 		}
 		
 		timeline.play();
+	}
+	
+	public void pauseGame(){
+		gamePanel.requestFocus();
+		if(timeline==null || (timeline.getStatus()==Status.STOPPED)){
+			return;
+		}
+		else if(timeline.getStatus()==Status.RUNNING){
+			timeline.pause();
+			isKey = false;
+		}else{
+			timeline.play();
+			isKey = true;
+		}		
 	}
 }

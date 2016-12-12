@@ -11,6 +11,10 @@
 	-fx-border-color: white;
 	-fx-border-width: 1px;
 }
+#ghostPanel{
+	-fx-border-color: white;
+	-fx-border-width: 1px;
+}
 
 .gameOverLabel{
 	-fx-font-size: 28px;

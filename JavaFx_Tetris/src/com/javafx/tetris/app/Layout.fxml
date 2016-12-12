@@ -10,17 +10,18 @@
 <Pane fx:controller="com.javafx.tetris.controller.View_Controller"
 		xmlns:fx="http://javafx.com/fxml/1" stylesheets="@Layout_Style.css">
 	<!-- TODO Add Nodes -->
-	<!-- <GridPane fx:id="blockPanel" vgap="1" hgap="1"/> -->
+	<GridPane fx:id="ghostPanel" vgap="1" hgap="1"/>
 	<GridPane fx:id="blockPanel" vgap="1" hgap="1"/>
-	<BorderPane>
+	<BorderPane fx:id="borderPane">
 		<center>
 			<GridPane fx:id="gamePanel" vgap="1" hgap="1"/>
 		</center>
 	</BorderPane>
 	
 	
-	<VBox layoutX="240" layoutY="20" alignment="CENTER">
+	<VBox layoutX="240" layoutY="20" alignment="CENTER" spacing="20">
 		<Button fx:id="newGameButton" text="NewGame"/>
+		<Button fx:id="pauseButton" text="Pause"/>
 	</VBox>
 	
 	
