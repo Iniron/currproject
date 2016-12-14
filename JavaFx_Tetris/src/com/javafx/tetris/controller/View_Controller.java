@@ -337,8 +337,8 @@ public class View_Controller implements Initializable {
 			
 		
 		FadeTransition fadeTransition = new FadeTransition(Duration.millis(200), ghostPanel);
-		fadeTransition.setFromValue(1.0);
-		fadeTransition.setToValue(0.0);
+		//fadeTransition.setFromValue(1.0);
+		//fadeTransition.setToValue(0.0);
 		fadeTransition.setCycleCount(3);
 		fadeTransition.play();
 		fadeTransition.setOnFinished(event->{
@@ -357,7 +357,9 @@ public class View_Controller implements Initializable {
 				//else gameRects[i][j].setFill(Color.TRANSPARENT);
 		}
 		
+		//ghostPanel.setOpacity(1.0);
 		timeline.play();
+		
 	}
 	
 	public void pauseGame(){
